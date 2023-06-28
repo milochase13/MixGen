@@ -28,7 +28,7 @@ function App() {
   
       if (app_response.ok) {
         const app_response_json = app_response.json();
-        app_response_json.then(data => setResult(data["prompt"]));
+        app_response_json.then(data => setResult(data["playlist"]));
       } else {
         throw new Error('Request failed with status ' + app_response.status);
       }
@@ -38,14 +38,16 @@ function App() {
   };
 
   return (
-    <div>
+    <div class="App">
       {/* <p>The current time is {currentTime}.</p> */}
-      <form onSubmit={handleSubmit}>
-        What's your mood?  
+      <form class="App-header"  onSubmit={handleSubmit}>
+        Describe your playlist:   
         <input type="text" value={response} onChange={(e) => setResponse(e.target.value)} />
         <button type="submit">Submit</button>
       </form>
-      {result && <div>{JSON.stringify(result)}</div>}
+      <div class="App-playlist">
+      {result && <div class="white-space-pre-line"> <div class="App-playlist-header">Playlist for <span class="App-prompt">{response}:</span> </div> <br/> {result} </div>}
+      </div>
     </div>
   );
 }
