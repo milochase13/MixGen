@@ -35,9 +35,11 @@ def get_saved_songs(sp):
     return song_options, song_uri
 
 
-def create_playlist(sp, prompt, uris):
+def create_playlist(sp, prompt, uris, title):
     user_id = sp.current_user()['id']
-    playlist_response = sp.user_playlist_create(user=user_id, name='AI generated playlist', public=False, description=prompt)
+    if title == '':
+        title = 'AI generated playlist'
+    playlist_response = sp.user_playlist_create(user=user_id, name=title, public=False, description=prompt)
     playlist_id = playlist_response['id']
     sp.playlist_add_items(playlist_id, uris)
 
@@ -68,15 +70,16 @@ def submit():
 
     # Construct arguments
     response_body = request.json
-    prompt = response_body['response']
-    num_songs = 3
+    prompt = response_body['prompt']
+    num_songs = response_body['num_songs']
+    playlist_title = response_body['title']
     song_options, song_uri = get_saved_songs(sp) #["'Happy' by Pharrell Williams", "'Walking on Sunshine' by Katrina & The Waves", "'The Boxer' by Simon and Garfunkel", "'Good Vibrations' by the Beach Boys", "'Trouble' by Cat Stevens"]
     song_options_stringified = " ,".join(song_options)
 
     # Make API call
-    gpt_response = query_openai(prompt, num_songs, song_options_stringified)
+    #gpt_response = query_openai(prompt, num_songs, song_options_stringified)
     # TESTING
-    #gpt_response = "{\"playlist\": [\n {\"song\": \"Passionfruit\", \"artist\": \"Drake\"},\n {\"song\": \"Late in the Evening\", \"artist\": \"Paul Simon\"},\n {\"song\": \"What I Got\", \"artist\": \"Sublime\"}\n]}"
+    gpt_response = "{\"playlist\": [\n {\"song\": \"Passionfruit\", \"artist\": \"Drake\"},\n {\"song\": \"Late in the Evening\", \"artist\": \"Paul Simon\"},\n {\"song\": \"What I Got\", \"artist\": \"Sublime\"}\n]}"
     
     # Construct response
     gpt_response_json = json.loads(gpt_response)
@@ -86,11 +89,15 @@ def submit():
         uri_list.append(song_uri[track["song"]+track["artist"]])
     song_list_stringified = "\n".join(song_list)
 
-    create_playlist(sp, prompt, uri_list)
+    # TODO add user-confirmation
 
+    # Create playlist
+    create_playlist(sp, prompt, uri_list, playlist_title)
+
+    # Send server response
     api_response = {"playlist" : song_list_stringified}
 
-    # Store in DB
+    # TODO Store in DB
 
     #conn = create_db_connection()
 
