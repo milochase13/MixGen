@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import logo from './logo.svg';
 import './App.css';
 import './form.css';
+import Checklist from './Checklist';
 
 function Playlist(props) {
   return(
@@ -97,7 +98,8 @@ function App() {
 
       {/* Result */}
       <div class="playlist">
-      {result && <Playlist prompt={prompt} result = {result}/>}
+      {/* {result && <Playlist prompt={prompt} result = {result}/>} */}
+      {result && <Checklist/>}
       <br/>
       { result && <button onClick={handleGoBack}>
         Go Back

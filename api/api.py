@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, g
 from flask_cors import CORS, cross_origin
 import time
 import openai
@@ -10,6 +10,12 @@ import json
 
 app = Flask(__name__)
 CORS(app)
+CHECKLIST = {}
+PROMPT = ""
+PLAYLIST_TITLE = ""
+SONG_URI = {}
+
+
 
 scope = ["user-library-read","playlist-modify-private"]
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
@@ -23,6 +29,14 @@ def create_db_connection():
         database=os.environ['DB_PASSWORD'],
     )
     return conn
+
+def store_txn(conn, prompt, response):
+    # Store result in PostgreSQL
+    # cursor = conn.cursor()
+    # cursor.execute("INSERT INTO results (response) VALUES (%s)", (response))
+    # conn.commit()
+    # cursor.close()
+    return
 
 def get_saved_songs(sp):
     song_options = []
@@ -59,10 +73,25 @@ def query_openai(prompt, num_songs, song_options):
     return response_message
 
 
-@app.route('/api/time')
-def get_current_time():
-    return {'time': time.time()}
+@app.route('/api/checklist', methods=['GET'])
+def get_checklist():
+    return CHECKLIST
 
+@app.route('/api/update-checklist', methods=['POST'])
+def update_checklist():
+    global CHECKLIST
+    CHECKLIST = request.json['checklist']
+    return {'success' : True}
+
+@app.route('/api/confirm-checklist', methods=['POST'])
+def confirm_checklist():
+    uri_list = []
+    global PROMPT, PLAYLIST_TITLE, SONG_URI, CHECKLIST
+    for item in CHECKLIST.items():
+        if item[1]:
+            uri_list.append(SONG_URI[item[0]])
+    create_playlist(sp, PROMPT, uri_list, PLAYLIST_TITLE)
+    return {'success' : True}
 
 @app.route('/api/submit', methods=['POST']) 
 @cross_origin(headers=['Content-Type']) 
@@ -77,22 +106,25 @@ def submit():
     song_options_stringified = " ,".join(song_options)
 
     # Make API call
-    gpt_response = query_openai(prompt, num_songs, song_options_stringified)
+    #gpt_response = query_openai(prompt, num_songs, song_options_stringified)
     # TESTING
-    # gpt_response = "{\"playlist\": [\n {\"song\": \"Passionfruit\", \"artist\": \"Drake\"},\n {\"song\": \"Late in the Evening\", \"artist\": \"Paul Simon\"},\n {\"song\": \"What I Got\", \"artist\": \"Sublime\"}\n]}"
+    gpt_response = "{\"playlist\": [\n {\"song\": \"Passionfruit\", \"artist\": \"Drake\"},\n {\"song\": \"Late in the Evening\", \"artist\": \"Paul Simon\"},\n {\"song\": \"What I Got\", \"artist\": \"Sublime\"}\n]}"
     
     # Construct response
     gpt_response_json = json.loads(gpt_response)
     song_list, uri_list = [], []
+    song_uri_dict = {}
     for track in gpt_response_json["playlist"]:
         song_list.append("'"+track["song"]+"'"+ " by " + track["artist"])
         uri_list.append(song_uri[track["song"]+track["artist"]])
+        song_uri_dict["'"+track["song"]+"'"+ " by " + track["artist"]] = song_uri[track["song"]+track["artist"]]
     song_list_stringified = "\n".join(song_list)
+    
 
-    # TODO add user-confirmation
-
-    # Create playlist
-    create_playlist(sp, prompt, uri_list, playlist_title)
+    # User confirmation
+    global CHECKLIST, SONG_URI, PROMPT, PLAYLIST_TITLE
+    SONG_URI, PROMPT, PLAYLIST_TITLE = song_uri_dict, prompt, playlist_title
+    CHECKLIST = dict.fromkeys(song_list, True)
 
     # Send server response
     api_response = {"playlist" : song_list_stringified}

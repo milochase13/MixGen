@@ -14,11 +14,11 @@ html {
   position: relative;
   overflow-x: hidden;
   scroll-behavior: smooth;
-  background-color: #EDEEE9;
+  background-color: #37514b;
 
 }
 html body {
-  background-color: #EDEEE9;
+  background-color: #37514b;
   color: #303030;
   font-family: "Inter", sans-serif;
   min-height: 100vh;
@@ -35,17 +35,17 @@ html body h1 {
 }
 html body a {
   text-decoration: underline;
-  color: #303030;
+  color: #37514b;
 }
 html body .playlist{
-    background-color: #EDEEE9;
+    background-color: #37514b;
     align-items: center;
 }
 
 html body code {
   font-size: 1rem;
   padding: 0 0.5rem;
-  background-color: #D8DBCE;
+  background-color: #6fc5af;
 }
 html body .explanation {
   width: 100%;
@@ -82,7 +82,7 @@ html body .container {
   justify-content: center;
   align-items: center;
   padding: 2rem 2rem 1.5rem;
-  background-color: #D8DBCE;
+  background-color: #6fc5af;
 }
 @media (min-width: 768px) {
   html body .container {
@@ -144,7 +144,7 @@ html .form__input:focus {
 }
 html .form__input:focus + .form__label, html .form__input:not(:placeholder-shown) + .form__label {
   transform: translateY(-4.5rem) scale(1);
-  color: #303030;
+  color: #37514b;
 }
 html .form__input::placeholder {
   display: none;
