@@ -19,8 +19,8 @@ def create_db_connection():
         host="localhost",
         port="5432",
         user="your_username",
-        password="your_password",
-        database="your_database_name"
+        password=os.environ['DB_USERNAME'],
+        database=os.environ['DB_PASSWORD'],
     )
     return conn
 
@@ -77,9 +77,9 @@ def submit():
     song_options_stringified = " ,".join(song_options)
 
     # Make API call
-    #gpt_response = query_openai(prompt, num_songs, song_options_stringified)
+    gpt_response = query_openai(prompt, num_songs, song_options_stringified)
     # TESTING
-    gpt_response = "{\"playlist\": [\n {\"song\": \"Passionfruit\", \"artist\": \"Drake\"},\n {\"song\": \"Late in the Evening\", \"artist\": \"Paul Simon\"},\n {\"song\": \"What I Got\", \"artist\": \"Sublime\"}\n]}"
+    # gpt_response = "{\"playlist\": [\n {\"song\": \"Passionfruit\", \"artist\": \"Drake\"},\n {\"song\": \"Late in the Evening\", \"artist\": \"Paul Simon\"},\n {\"song\": \"What I Got\", \"artist\": \"Sublime\"}\n]}"
     
     # Construct response
     gpt_response_json = json.loads(gpt_response)
@@ -110,4 +110,4 @@ def submit():
     return api_response
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
