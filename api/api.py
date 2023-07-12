@@ -1,4 +1,4 @@
-from flask import Flask, request, g
+from flask import Flask, request, g, session
 from flask_cors import CORS, cross_origin
 import time
 import openai
@@ -9,13 +9,8 @@ from spotipy.oauth2 import SpotifyOAuth
 import json
 
 app = Flask(__name__)
+app.secret_key = os.environ['SESSION_SECRET']
 CORS(app)
-CHECKLIST = {}
-PROMPT = ""
-PLAYLIST_TITLE = ""
-SONG_URI = {}
-
-
 
 scope = ["user-library-read","playlist-modify-private"]
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
@@ -58,7 +53,6 @@ def create_playlist(sp, prompt, uris, title):
     sp.playlist_add_items(playlist_id, uris)
 
 def query_openai(prompt, num_songs, song_options):
-    #system_prompt = "You are a helpful assistant. Your job is to recommend songs for a music playlist given a list of song options. If you don't know a song, make an educated guess based on its name and artist, but be more conservative when choosing to recommend it. You will give your response in a JSON format with the following schema: {\"playlist\": [{\"song\": String, \"artist\": String}]}. Do not include any text in your response other than the JSON output."
     system_prompt = "You are a helpful assistant. Your job is to recommend songs for a music playlist given a list of song options. You will give your response in a JSON format with the following schema: {\"playlist\": [{\"song\": String, \"artist\": String}]}. Do not include any text in your response other than the JSON output."
     user_prompt = "I want to create a playlist that is: " + prompt + ". Given the following song options, create an appropriate playlist that is " + str(num_songs) + " songs long. Song options: " + song_options
     openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -75,22 +69,25 @@ def query_openai(prompt, num_songs, song_options):
 
 @app.route('/api/checklist', methods=['GET'])
 def get_checklist():
-    return CHECKLIST
+    if session["checklist"]:
+        return session["checklist"]
 
 @app.route('/api/update-checklist', methods=['POST'])
 def update_checklist():
-    global CHECKLIST
-    CHECKLIST = request.json['checklist']
+    session["checklist"] = request.json['checklist']
     return {'success' : True}
 
 @app.route('/api/confirm-checklist', methods=['POST'])
 def confirm_checklist():
     uri_list = []
-    global PROMPT, PLAYLIST_TITLE, SONG_URI, CHECKLIST
-    for item in CHECKLIST.items():
+    prompt = session["prompt"]
+    playlist_title = session["playlist_title"]
+    song_uri = session["song_uri"]
+    checklist = session["checklist"]
+    for item in checklist.items():
         if item[1]:
-            uri_list.append(SONG_URI[item[0]])
-    create_playlist(sp, PROMPT, uri_list, PLAYLIST_TITLE)
+            uri_list.append(song_uri[item[0]])
+    create_playlist(sp, prompt, uri_list, playlist_title)
     return {'success' : True}
 
 @app.route('/api/submit', methods=['POST']) 
@@ -106,7 +103,7 @@ def submit():
     song_options_stringified = " ,".join(song_options)
 
     # Make API call
-    #gpt_response = query_openai(prompt, num_songs, song_options_stringified)
+    # gpt_response = query_openai(prompt, num_songs, song_options_stringified)
     # TESTING
     gpt_response = "{\"playlist\": [\n {\"song\": \"Passionfruit\", \"artist\": \"Drake\"},\n {\"song\": \"Late in the Evening\", \"artist\": \"Paul Simon\"},\n {\"song\": \"What I Got\", \"artist\": \"Sublime\"}\n]}"
     
@@ -121,10 +118,11 @@ def submit():
     song_list_stringified = "\n".join(song_list)
     
 
-    # User confirmation
-    global CHECKLIST, SONG_URI, PROMPT, PLAYLIST_TITLE
-    SONG_URI, PROMPT, PLAYLIST_TITLE = song_uri_dict, prompt, playlist_title
-    CHECKLIST = dict.fromkeys(song_list, True)
+    # set session data
+    session["checklist"] = dict.fromkeys(song_list, True)
+    session["prompt"] = prompt
+    session["playlist_title"] = playlist_title
+    session["song_uri"] = song_uri_dict
 
     # Send server response
     api_response = {"playlist" : song_list_stringified}
@@ -132,7 +130,6 @@ def submit():
     # TODO Store in DB
 
     #conn = create_db_connection()
-
     # Store result in PostgreSQL
     # cursor = conn.cursor()
     # cursor.execute("INSERT INTO results (response) VALUES (%s)", (response))
