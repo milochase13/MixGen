@@ -67,7 +67,7 @@ const Checklist = () => {
             ))}
             </form>
             <div>
-                <button onClick={handleConfirm}>
+                <button onClick={handleConfirm} class="button-63" role="button">
                     Confirm
                 </button>
             </div>
@@ -79,7 +79,7 @@ const Checklist = () => {
             </p>
         </div>}
         <br/>
-        <button onClick={handleGoBack}>
+        <button onClick={handleGoBack} class="button-64" role="button">
             Go Back
         </button>
     </div>

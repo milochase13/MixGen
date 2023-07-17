@@ -92,7 +92,7 @@ export function Form() {
        {/* Form */}
       <div class="container">
         <div class="cta-form">
-          <h2>Create a new playlist!</h2> 
+          <h2>Create a new playlist</h2> 
           <p>Submit the form to create an AI generated playlist from your liked songs.</p>
         </div>
         <form class="form"  onSubmit={handleSubmit}>
@@ -107,7 +107,7 @@ export function Form() {
           <label for="songs" class="form__label" htmlFor="num_songs">Length</label>
 
           {inputError && <div style={{ color: 'red' }}>{inputError}</div>}
-          <button type="submit">Submit</button>
+          <button type="submit" class="button-63" role="button">Submit</button>
         </form>
       </div> 
       

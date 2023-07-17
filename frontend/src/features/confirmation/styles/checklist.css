@@ -1,27 +1,29 @@
 .inputGroup {
-  background-color: #fff;
+  background-color: #a2b0c1;
   display: block;
   margin: 10px 0;
   position: relative;
+  border-radius: 10px;
 }
 .inputGroup label {
   padding: 12px 30px;
   width: 100%;
   display: block;
   text-align: left;
-  color: #37514b;
+  color: #000000;
   cursor: pointer;
   position: relative;
   z-index: 2;
   transition: color 200ms ease-in;
   overflow: hidden;
+  border-radius: 8px;
 }
 .inputGroup label:before {
   width: 10px;
   height: 10px;
   border-radius: 50%;
   content: "";
-  background-color: #6fc5af;
+  background-color: #16191e;
   position: absolute;
   left: 50%;
   top: 50%;
@@ -49,7 +51,7 @@
   transition: all 200ms ease-in;
 }
 .inputGroup input:checked ~ label {
-  color: #37514b;
+  color: #a2b0c1;
 }
 .inputGroup input:checked ~ label:before {
   transform: translate(-50%, -50%) scale3d(56, 56, 1);
@@ -88,28 +90,86 @@
     font-size: 24px;
     font-weight: 1000;
     line-height: 36px;
-    background-color: #6fc5af;
-    color: #37514b;
+    background-color: #16191e;
+    color: #a2b0c1;
+    border-radius: 10px;
 }
 
-body {
-  background-color: #D1D7DC;
-  font-family: "Fira Sans", sans-serif;
+
+/* CSS */
+.button-63 {
+  align-items: center;
+  background-image: 
+    linear-gradient(
+      to right,
+      rgba(255, 0, 0, 1),
+      rgba(255, 0, 180, 1),
+      rgba(0, 100, 200, 1)
+      );
+  border: 0;
+  border-radius: 8px;
+
+
+  color: #FFFFFF;
+  display: flex;
+  font-family: Phantomsans, sans-serif;
+  font-size: 5px;
+  justify-content: center;
+  line-height: 1em;
+
+  padding: 5px 10px;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  white-space: nowrap;
+  cursor: pointer;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: inherit;
+.button-63:active,
+.button-63:hover {
+  outline: 0;
 }
 
-html {
-  box-sizing: border-box;
-}
-
-code {
-  background-color: #9AA3AC;
-  padding: 0 8px;
+@media (min-width: 768px) {
+  .button-63 {
+    font-size: 18px;
+    min-width: 130px;
+  }
 }
 
 /*# sourceMappingURL=checklist.css.map */
+
+.button-64 {
+  align-items: center;
+  background-color: #000000;
+  border: 0;
+  border-radius: 8px;
+
+  color: #FFFFFF;
+  display: flex;
+  font-family: Phantomsans, sans-serif;
+  font-size: 5px;
+  justify-content: center;
+  line-height: 1em;
+
+  padding: 5px 10px;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.button-64:active,
+.button-64:hover {
+  outline: 0;
+}
+
+@media (min-width: 768px) {
+  .button-64 {
+    font-size: 18px;
+    min-width: 130px;
+  }
+}

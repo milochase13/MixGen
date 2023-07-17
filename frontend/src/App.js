@@ -2,6 +2,7 @@ import React from "react";
 import './styles/App.css';
 import Checklist from './features/confirmation/Checklist';
 import Form from './features/form/Form';
+import Signin from './features/signin/Signin';
 import { connect } from 'react-redux';
 
 const mapStateToProps = (state) => {
@@ -11,10 +12,12 @@ const mapStateToProps = (state) => {
     num_songs: state.form.num_songs, 
     title: state.form.title, 
     input_error: state.form.input_error, 
+    signin: state.signin.signin,
   };
 };
 
 function App(props) {
+  
   if (props.result) {
     return (
       <div class="html">
@@ -25,11 +28,18 @@ function App(props) {
     )
   }
   else{
-    return(
-      <div class="html">
+    if(!props.signin){
+      return(
+        <Signin/>
+      )
+    }
+    else{
+      return(
+        <div class="html">
         <Form/>
-      </div>
-    )
+        </div>
+      )
+    }
   }
 }
 
