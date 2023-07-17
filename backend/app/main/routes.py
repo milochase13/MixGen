@@ -1,9 +1,10 @@
-from flask import request, session
+from flask import request, session, redirect
 from flask_cors import cross_origin
 import json
 from app.main import bp
 import os
 import sys
+import spotipy
 
 file_dir = os.path.dirname(__file__)
 sys.path.append(file_dir)
@@ -12,11 +13,17 @@ sys.path.append(file_dir)
 from app.commons.llm import query_openai
 import app.commons.db
 from app.commons.spotify_helpers import get_saved_songs
-from app.commons.commons import sp
+# from app.commons.commons import sp
 
 @bp.route('/api/submit', methods=['POST']) 
 @cross_origin(headers=['Content-Type']) 
 def submit():
+    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/signin/')
+
+    sp = spotipy.Spotify(auth_manager=auth_manager)
 
     # Construct arguments
     response_body = request.json
@@ -27,9 +34,9 @@ def submit():
     song_options_stringified = " ,".join(song_options)
 
     # Make LLM API call
-    gpt_response = query_openai(prompt, num_songs, song_options_stringified)
+    # gpt_response = query_openai(prompt, num_songs, song_options_stringified)
     # TESTING
-    #gpt_response = "{\"playlist\": [\n {\"song\": \"Passionfruit\", \"artist\": \"Drake\"},\n {\"song\": \"Late in the Evening\", \"artist\": \"Paul Simon\"},\n {\"song\": \"What I Got\", \"artist\": \"Sublime\"}\n]}"
+    gpt_response = "{\"playlist\": [\n {\"song\": \"Passionfruit\", \"artist\": \"Drake\"},\n {\"song\": \"Late in the Evening\", \"artist\": \"Paul Simon\"},\n {\"song\": \"What I Got\", \"artist\": \"Sublime\"}\n]}"
     
     # Construct response
     gpt_response_json = json.loads(gpt_response)
@@ -40,7 +47,6 @@ def submit():
         uri_list.append(song_uri[track["song"]+track["artist"]])
         song_uri_dict["'"+track["song"]+"'"+ " by " + track["artist"]] = song_uri[track["song"]+track["artist"]]
     song_list_stringified = "\n".join(song_list)
-    
 
     # set session data
     session["checklist"] = dict.fromkeys(song_list, True)

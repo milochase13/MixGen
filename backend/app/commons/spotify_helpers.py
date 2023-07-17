@@ -1,3 +1,8 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 def get_saved_songs(sp):
     song_options = []
     song_uri = {}
@@ -7,7 +12,6 @@ def get_saved_songs(sp):
         song_options.append("'" + track['name'] + "'" + " by " + track['artists'][0]['name'])
         song_uri[track['name']+track['artists'][0]['name']] = track['uri']
     return song_options, song_uri
-
 
 def create_playlist(sp, prompt, uris, title):
     user_id = sp.current_user()['id']

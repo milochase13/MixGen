@@ -10,7 +10,9 @@ def create_app():
     # Register blueprints, initialize extensions, etc.
     from app.main import bp as main_bp
     from app.confirmation import bp as confirmation_bp
+    from app.signin import bp as signin
     app.register_blueprint(main_bp)
     app.register_blueprint(confirmation_bp)
+    app.register_blueprint(signin)
 
     return app

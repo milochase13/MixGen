@@ -1,7 +1,8 @@
-from flask import request, session
+from flask import request, session, redirect
 from app.confirmation import bp
 from app.commons.spotify_helpers import create_playlist
-from app.commons.commons import sp
+import spotipy
+# from app.commons.commons import sp
 
 @bp.route('/api/checklist', methods=['GET'])
 def get_checklist():
@@ -15,6 +16,13 @@ def update_checklist():
 
 @bp.route('/api/confirm-checklist', methods=['POST'])
 def confirm_checklist():
+    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/signin/')
+
+    sp = spotipy.Spotify(auth_manager=auth_manager)
+
     uri_list = []
     prompt = session["prompt"]
     playlist_title = session["playlist_title"]
