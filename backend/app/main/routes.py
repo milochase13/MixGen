@@ -5,6 +5,7 @@ from app.main import bp
 import os
 import sys
 import spotipy
+from app.commons.db import add_prompt
 
 file_dir = os.path.dirname(__file__)
 sys.path.append(file_dir)
@@ -13,11 +14,11 @@ sys.path.append(file_dir)
 from app.commons.llm import query_openai
 import app.commons.db
 from app.commons.spotify_helpers import get_saved_songs
-# from app.commons.commons import sp
 
 @bp.route('/api/submit', methods=['POST']) 
 @cross_origin(headers=['Content-Type']) 
 def submit():
+    # Create Spotify object from cache, fallback redirect to signin
     cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
     auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
@@ -53,10 +54,9 @@ def submit():
     session["prompt"] = prompt
     session["playlist_title"] = playlist_title
     session["song_uri"] = song_uri_dict
+    session["num_songs"] = num_songs
 
     # Send server response
     api_response = {"playlist" : song_list_stringified}
-
-    # TODO Store in DB
 
     return api_response

@@ -6,7 +6,6 @@ html body .container .cta-form {
   margin-bottom: 2rem;
   text-align: center;
   color: #a2b0c1; 
-  
 }
 
 html body .container {
@@ -15,13 +14,17 @@ html body .container {
   flex-direction: column;
   height: auto;
 
-  width: 100%;
-  max-width: 768px;
-
   align-items: center;
   padding: 2rem 2rem 1.5rem;
   background-color: #16191e;
   border-radius: 10px;
+  
+  width: 100%;
+  max-width: 45vw;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   
 }
 
@@ -81,10 +84,7 @@ html .form__label {
   pointer-events: none;
 }
 
-/*# sourceMappingURL=form.css.map */
 
-
-/* CSS */
 .button-63 {
   align-items: center;
   background-image: 

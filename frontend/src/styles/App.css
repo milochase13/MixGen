@@ -170,4 +170,15 @@ html .form__label {
   pointer-events: none;
 }
 
-/*# sourceMappingURL=form.css.map */
+.button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+
+.button-container .pair {
+  float: left;
+  margin-right: 10px; /* Adjust spacing between buttons */
+}

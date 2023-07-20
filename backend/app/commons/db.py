@@ -1,19 +1,41 @@
 import psycopg2
+import os
+from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, request, flash, url_for, redirect, render_template
+from app import db
+from app.models.models import Prompt, Response
 
-def create_db_connection():
-    conn = psycopg2.connect(
-        host="localhost",
-        port="5432",
-        user="your_username",
-        password=os.environ['DB_USERNAME'],
-        database=os.environ['DB_PASSWORD'],
-    )
-    return conn
 
-def store_txn(conn, prompt, response):
-    # Store result in PostgreSQL
-    # cursor = conn.cursor()
-    # cursor.execute("INSERT INTO results (response) VALUES (%s)", (response))
-    # conn.commit()
-    # cursor.close()
-    return
+def add_prompt(content, title, num_songs, rating=None):
+
+    # Create a new Prompt object with the extracted data
+    new_prompt = Prompt(content=content, title=title, num_songs=num_songs, rating=rating)
+
+    # Add the new Prompt object to the database session
+    db.session.add(new_prompt)
+
+    try:
+        # Commit the changes to the database
+        db.session.commit()
+        return {'message': 'Prompt added successfully.', "id": new_prompt.id}, 201
+    except Exception as e:
+        # In case of an error, rollback the changes
+        db.session.rollback()
+        return {'error': str(e)}, 500
+
+def add_response(uri, prompt_id):
+
+    # Create a new Prompt object with the extracted data
+    new_response = Response(song_uri=uri, prompt_id=prompt_id)
+
+    # Add the new Prompt object to the database session
+    db.session.add(new_response)
+
+    try:
+        # Commit the changes to the database
+        db.session.commit()
+        return {'message': 'Response added successfully.'}, 201
+    except Exception as e:
+        # In case of an error, rollback the changes
+        db.session.rollback()
+        return {'error': str(e)}, 500

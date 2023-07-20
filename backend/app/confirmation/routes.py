@@ -1,8 +1,8 @@
 from flask import request, session, redirect
 from app.confirmation import bp
 from app.commons.spotify_helpers import create_playlist
+from app.commons.db import add_prompt, add_response
 import spotipy
-# from app.commons.commons import sp
 
 @bp.route('/api/checklist', methods=['GET'])
 def get_checklist():
@@ -32,4 +32,18 @@ def confirm_checklist():
         if item[1]:
             uri_list.append(song_uri[item[0]])
     create_playlist(sp, prompt, uri_list, playlist_title)
+
+    ## Store in db
+    msg_pmt, code_pmt  = add_prompt(prompt, playlist_title, session["num_songs"])
+    print(msg_pmt)
+
+    if code_pmt == 201:
+        for uri in uri_list:
+            msg_res, code_res = add_response(uri, msg_pmt["id"])
+            if code_res != 201:
+                return {'error' : msg_res}
+    else:
+        return {'error' : msg_pmt}
+
+    
     return {'success' : True}

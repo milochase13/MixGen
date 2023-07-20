@@ -107,7 +107,9 @@ export function Form() {
           <label for="songs" class="form__label" htmlFor="num_songs">Length</label>
 
           {inputError && <div style={{ color: 'red' }}>{inputError}</div>}
-          <button type="submit" class="button-63" role="button">Submit</button>
+          <div class="button-container">
+            <button type="submit" class="button-63" role="button">Submit</button>
+          </div>
         </form>
       </div> 
       

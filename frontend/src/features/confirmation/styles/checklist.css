@@ -1,7 +1,16 @@
+.checklist-container {
+  width: 100%;
+  max-width: 45vw;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .inputGroup {
   background-color: #a2b0c1;
   display: block;
-  margin: 10px 0;
+  margin: 3px 0;
   position: relative;
   border-radius: 10px;
 }
@@ -110,7 +119,7 @@
   border-radius: 8px;
 
 
-  color: #FFFFFF;
+  color: #a2b0c1;
   display: flex;
   font-family: Phantomsans, sans-serif;
   font-size: 5px;
@@ -142,11 +151,11 @@
 
 .button-64 {
   align-items: center;
-  background-color: #000000;
+  background-color: #16191e;
   border: 0;
   border-radius: 8px;
 
-  color: #FFFFFF;
+  color: #a2b0c1;
   display: flex;
   font-family: Phantomsans, sans-serif;
   font-size: 5px;

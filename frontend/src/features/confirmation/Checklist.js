@@ -48,7 +48,7 @@ const Checklist = () => {
   };
 
   return (
-    <div>
+    <div class = ".checklist-container">
         {!confirmed && <div>
             <div class="header">
                 Here is your AI generated playlist! Finalize it by choosing which songs to keep:
@@ -66,8 +66,8 @@ const Checklist = () => {
                 </div>
             ))}
             </form>
-            <div>
-                <button onClick={handleConfirm} class="button-63" role="button">
+            <div class="button-container">
+                <button onClick={handleConfirm} class="button-63 pair" role="button">
                     Confirm
                 </button>
             </div>
@@ -79,9 +79,11 @@ const Checklist = () => {
             </p>
         </div>}
         <br/>
-        <button onClick={handleGoBack} class="button-64" role="button">
-            Go Back
-        </button>
+        <div class="button-container">
+          <button onClick={handleGoBack} class="button-64 pair" role="button">
+              Go Back
+          </button>
+        </div>
     </div>
   );
 };
