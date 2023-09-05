@@ -16,3 +16,4 @@ class Response(db.Model):
    prompt = db.relationship('Prompt', backref='prompt')
    def __repr__(self):
       return f"Response(id='{self.id}', song_uri={self.song_uri}, prompt_id={self.prompt_id})"
+   

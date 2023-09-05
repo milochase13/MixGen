@@ -1,4 +1,5 @@
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -6,8 +7,16 @@ logger = logging.getLogger(__name__)
 def get_saved_songs(sp):
     song_options = []
     song_uri = {}
-    results = sp.current_user_saved_tracks()
-    for _, item in enumerate(results['items']):
+    offset = 0
+    results = sp.current_user_saved_tracks(limit=50, offset=offset)
+    all_songs = []
+    while results['items']:
+        all_songs.extend(results['items'])
+        offset += 50
+        results = sp.current_user_saved_tracks(limit=50, offset=offset)
+        time.sleep(1)
+
+    for _, item in enumerate(all_songs):
         track = item['track']
         song_options.append("'" + track['name'] + "'" + " by " + track['artists'][0]['name'])
         song_uri[track['name']+track['artists'][0]['name']] = track['uri']

@@ -1,6 +1,7 @@
 import spotipy
 from flask import session, request
 from app.main import bp
+import os
 
 scope = ["user-library-read","playlist-modify-private"]
 
@@ -20,6 +21,7 @@ def index():
                                                cache_handler=cache_handler,
                                                show_dialog=True)
     if request.args.get("code"):
-        auth_manager.get_access_token(auth_manager.parse_response_code(request.url))
+        access_tok = auth_manager.get_access_token(auth_manager.parse_response_code(request.url))
+        session['spotify_oauth'] = access_tok
         return {'success': True}
     

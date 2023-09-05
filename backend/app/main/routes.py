@@ -23,7 +23,7 @@ def submit():
     auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
         return redirect('/signin/')
-
+    
     sp = spotipy.Spotify(auth_manager=auth_manager)
 
     # Construct arguments
@@ -35,9 +35,9 @@ def submit():
     song_options_stringified = " ,".join(song_options)
 
     # Make LLM API call
-    # gpt_response = query_openai(prompt, num_songs, song_options_stringified)
+    gpt_response = query_openai(prompt, num_songs, song_options_stringified)
     # TESTING
-    gpt_response = "{\"playlist\": [\n {\"song\": \"Passionfruit\", \"artist\": \"Drake\"},\n {\"song\": \"Late in the Evening\", \"artist\": \"Paul Simon\"},\n {\"song\": \"What I Got\", \"artist\": \"Sublime\"}\n]}"
+    # gpt_response = "{\"playlist\": [\n {\"song\": \"Passionfruit\", \"artist\": \"Drake\"},\n {\"song\": \"Late in the Evening\", \"artist\": \"Paul Simon\"},\n {\"song\": \"What I Got\", \"artist\": \"Sublime\"}\n]}"
     
     # Construct response
     gpt_response_json = json.loads(gpt_response)
