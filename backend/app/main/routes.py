@@ -1,11 +1,9 @@
 from flask import request, session, redirect
 from flask_cors import cross_origin
-import json
 from app.main import bp
 import os
 import sys
 import spotipy
-from app.commons.db import add_prompt
 
 file_dir = os.path.dirname(__file__)
 sys.path.append(file_dir)
@@ -32,24 +30,28 @@ def submit():
     num_songs = response_body['num_songs']
     playlist_title = response_body['title']
     song_options, song_uri = get_saved_songs(sp) 
-    song_options_stringified = " ,".join(song_options)
 
     # Make LLM API call
-    gpt_response = query_openai(prompt, num_songs, song_options_stringified)
+    gpt_response = query_openai(prompt, int(num_songs), song_options)
     # TESTING
     # gpt_response = "{\"playlist\": [\n {\"song\": \"Passionfruit\", \"artist\": \"Drake\"},\n {\"song\": \"Late in the Evening\", \"artist\": \"Paul Simon\"},\n {\"song\": \"What I Got\", \"artist\": \"Sublime\"}\n]}"
-    
+
     # Construct response
-    gpt_response_json = json.loads(gpt_response)
     song_list, uri_list = [], []
     song_uri_dict = {}
-    for track in gpt_response_json["playlist"]:
-        song_list.append("'"+track["song"]+"'"+ " by " + track["artist"])
-        uri_list.append(song_uri[track["song"]+track["artist"]])
-        song_uri_dict["'"+track["song"]+"'"+ " by " + track["artist"]] = song_uri[track["song"]+track["artist"]]
+    for track in gpt_response:
+        try:
+            uri_list.append(song_uri[track[0]+track[1]])
+        except:
+            # TODO bad key callback
+            print("BAD KEY: "+track[0]+track[1])
+            continue
+        else:
+            song_list.append("'"+track[0]+"'"+ " by " + track[1])
+            song_uri_dict["'"+track[0]+"'"+ " by " + track[1]] = song_uri[track[0]+track[1]]
     song_list_stringified = "\n".join(song_list)
 
-    # set session data
+    # Set session data
     session["checklist"] = dict.fromkeys(song_list, True)
     session["prompt"] = prompt
     session["playlist_title"] = playlist_title
