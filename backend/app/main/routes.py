@@ -4,6 +4,7 @@ from app.main import bp
 import os
 import sys
 import spotipy
+import ast
 
 file_dir = os.path.dirname(__file__)
 sys.path.append(file_dir)
@@ -32,9 +33,9 @@ def submit():
     song_options, song_uri = get_saved_songs(sp) 
 
     # Make LLM API call
-    gpt_response = query_openai(prompt, int(num_songs), song_options)
+    # gpt_response = query_openai(prompt, int(num_songs), song_options)
     # TESTING
-    # gpt_response = "{\"playlist\": [\n {\"song\": \"Passionfruit\", \"artist\": \"Drake\"},\n {\"song\": \"Late in the Evening\", \"artist\": \"Paul Simon\"},\n {\"song\": \"What I Got\", \"artist\": \"Sublime\"}\n]}"
+    gpt_response = ast.literal_eval("""[["Passionfruit", "Drake"], ["Late in the Evening", "Paul Simon"], ["What I Got", "Sublime"]]""")
 
     # Construct response
     song_list, uri_list = [], []

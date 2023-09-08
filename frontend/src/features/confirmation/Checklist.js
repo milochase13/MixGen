@@ -3,6 +3,7 @@ import axios from 'axios';
 import './styles/checklist.css'
 import { go_back } from '../form/formSlice'
 import store from '../../app/store';
+import StarRating from '../rating/Rating';
 
 
 const Checklist = () => {
@@ -10,11 +11,26 @@ const Checklist = () => {
   const [checkedItems, setCheckedItems] = useState({});
   const [confirmed, setConfirmed] = useState(false);
 
+  const [rating, setRating] = useState(0);
+
+  const handleRating = (newRating) => {
+    // Handle the new rating here, e.g., save it to the server
+    setRating(newRating);
+  };
+
   const handleGoBack = (_) => {
+    axios.post('/api/rating', { rating: rating })
+      .then(response => {
+      // handle response
+      })
+      .catch(error => {
+        // Handle error 
+      });
     store.dispatch(go_back());
-}
+  }
 
   useEffect(() => {
+    console.log(rating);
     fetch('/api/checklist')
       .then(response => response.json())
       .then(data => {
@@ -70,20 +86,25 @@ const Checklist = () => {
                 <button onClick={handleConfirm} class="button-63 pair" role="button">
                     Confirm
                 </button>
+                <button onClick={handleGoBack} class="button-64 pair" role="button">
+                  Go Back
+                </button>
+              </div>
             </div>
-        </div>
         }
         {confirmed && <div>
-            <p>
+            <p class="rating-page">
             Your playlist has been created!
             </p>
-        </div>}
-        <br/>
-        <div class="button-container">
-          <button onClick={handleGoBack} class="button-64 pair" role="button">
-              Go Back
-          </button>
-        </div>
+         <br/>
+          <StarRating initialValue={rating} onRate={handleRating} />
+         <div class="button-container">
+           <button onClick={handleGoBack} class="button-64 pair" role="button">
+              Done
+           </button>
+         </div>
+         </div>
+         }
     </div>
   );
 };

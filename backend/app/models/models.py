@@ -17,3 +17,11 @@ class Response(db.Model):
    def __repr__(self):
       return f"Response(id='{self.id}', song_uri={self.song_uri}, prompt_id={self.prompt_id})"
    
+class Rating(db.Model):
+   id = db.Column('id', db.Integer, primary_key = True)
+   rating = db.Column(db.Integer)
+   prompt_id = db.Column('prompt_id', db.Integer, db.ForeignKey('prompt.prompt_id'))
+   prompt_relation = db.relationship('Prompt', backref='prompt_relation')
+   def __repr__(self):
+      return f"Response(id='{self.id}', rating={self.rating}, prompt_id={self.prompt_id})"
+   

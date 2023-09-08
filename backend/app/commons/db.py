@@ -3,7 +3,7 @@ import os
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, request, flash, url_for, redirect, render_template
 from app import db, db_prod
-from app.models.models import Prompt, Response
+from app.models.models import Prompt, Response, Rating
 
 if os.environ.get('FLASK_ENV') == 'production':
     db = db_prod
@@ -32,6 +32,23 @@ def add_response(uri, prompt_id):
 
     # Add the new Prompt object to the database session
     db.session.add(new_response)
+
+    try:
+        # Commit the changes to the database
+        db.session.commit()
+        return {'message': 'Response added successfully.'}, 201
+    except Exception as e:
+        # In case of an error, rollback the changes
+        db.session.rollback()
+        return {'error': str(e)}, 500
+
+def add_rating(rating, prompt_id):
+
+    # Create a new Prompt object with the extracted data
+    new_rating = Rating(rating=rating, prompt_id=prompt_id)
+
+    # Add the new Prompt object to the database session
+    db.session.add(new_rating)
 
     try:
         # Commit the changes to the database

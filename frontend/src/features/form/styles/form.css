@@ -3,8 +3,9 @@
 /* Global Styles */
 
 html body .container .cta-form {
+  align-self: center;
   margin-bottom: 2rem;
-  text-align: center;
+  margin-left: 2rem;
   color: #a2b0c1; 
 }
 

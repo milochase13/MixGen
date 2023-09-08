@@ -1,7 +1,7 @@
 from flask import request, session, redirect
 from app.confirmation import bp
 from app.commons.spotify_helpers import create_playlist
-from app.commons.db import add_prompt, add_response
+from app.commons.db import add_prompt, add_response, add_rating
 import spotipy
 
 @bp.route('/api/checklist', methods=['GET'])
@@ -35,9 +35,9 @@ def confirm_checklist():
 
     ## Store in db
     msg_pmt, code_pmt  = add_prompt(prompt, playlist_title, session["num_songs"])
-    print(msg_pmt)
 
     if code_pmt == 201:
+        session["pmt_id"] = msg_pmt["id"]
         for uri in uri_list:
             msg_res, code_res = add_response(uri, msg_pmt["id"])
             if code_res != 201:
@@ -45,5 +45,12 @@ def confirm_checklist():
     else:
         return {'error' : msg_pmt}
 
-    
+    return {'success' : True}
+
+@bp.route('/api/rating', methods=['POST'])
+def record_rating():
+    session["rating"] = request.json['rating']
+    msg_pmt, code_pmt = add_rating(request.json['rating'], session["pmt_id"])
+    print(msg_pmt)
+    print(session["rating"])
     return {'success' : True}
