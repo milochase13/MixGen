@@ -3,6 +3,7 @@ import './styles/rating.css'
 
 const StarRating = ({ initialValue, onRate }) => {
   const [rating, setRating] = useState(initialValue);
+  const [hoveredRating, setHoveredRating] = useState(0);
 
   const handleStarClick = (newRating) => {
     setRating(newRating);
@@ -11,14 +12,20 @@ const StarRating = ({ initialValue, onRate }) => {
     }
   };
 
+  const handleStarHover = (i) => {
+    setHoveredRating(i);
+  };
+
   const renderStars = () => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
       stars.push(
         <span
           key={i}
-          className={`star ${i <= rating ? 'filled' : ''}`}
+          className={`star ${i <= rating || i <= hoveredRating ? 'filled' : ''}`}
           onClick={() => handleStarClick(i)}
+          onMouseEnter={() => handleStarHover(i)}
+          onMouseLeave={() => setHoveredRating(0)}
         >
           &#9733;
         </span>

@@ -23,6 +23,11 @@
   color: #16191e; /* Default color for unfilled stars */
 }
 
+.star:hover,
+.star.hovered {
+  color: #54E0C7; /* Highlight color when hovered */
+}
+
 .star.filled {
   padding: 5vh 0vh 0vh 0vh;
   font-size: 60px;
