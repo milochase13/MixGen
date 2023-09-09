@@ -5,9 +5,8 @@ class Prompt(db.Model):
    content = db.Column(db.String)
    title = db.Column(db.String)
    num_songs = db.Column(db.Integer)
-   rating = db.Column(db.Integer)
    def __repr__(self):
-      return f"Prompt(id='{self.id}', content={self.content}, title={self.title}, num_songs={self.num_songs}, rating={self.rating})"
+      return f"Prompt(id='{self.id}', content={self.content}, title={self.title}, num_songs={self.num_songs})"
 
 class Response(db.Model):
    id = db.Column('id', db.Integer, primary_key = True)

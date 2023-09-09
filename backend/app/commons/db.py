@@ -8,10 +8,10 @@ from app.models.models import Prompt, Response, Rating
 if os.environ.get('FLASK_ENV') == 'production':
     db = db_prod
 
-def add_prompt(content, title, num_songs, rating=None):
+def add_prompt(content, title, num_songs):
 
     # Create a new Prompt object with the extracted data
-    new_prompt = Prompt(content=content, title=title, num_songs=num_songs, rating=rating)
+    new_prompt = Prompt(content=content, title=title, num_songs=num_songs)
 
     # Add the new Prompt object to the database session
     db.session.add(new_prompt)

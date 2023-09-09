@@ -1,0 +1,30 @@
+.star-rating {
+  display: flex;
+  align-self: center;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  
+}
+
+.feedback {
+  padding: 20vh 0vh 28vh 0vh;
+  color: #D1D7DC;
+  font-size: 26px;
+  align-items: center;
+  text-align: center;
+}
+
+.star {
+  padding: 5vh 0vh 0vh 0vh;
+  font-size: 60px;
+  cursor: pointer;
+  color: #16191e; /* Default color for unfilled stars */
+}
+
+.star.filled {
+  padding: 5vh 0vh 0vh 0vh;
+  font-size: 60px;
+  color: #54E0C7; /* Color for filled stars */
+}

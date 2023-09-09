@@ -83,11 +83,11 @@ const Checklist = () => {
             ))}
             </form>
             <div class="button-container">
-                <button onClick={handleConfirm} class="button-63 pair" role="button">
-                    Confirm
-                </button>
                 <button onClick={handleGoBack} class="button-64 pair" role="button">
                   Go Back
+                </button>
+                <button onClick={handleConfirm} class="button-63 pair" role="button">
+                    Confirm
                 </button>
               </div>
             </div>
