@@ -10,7 +10,7 @@ file_dir = os.path.dirname(__file__)
 sys.path.append(file_dir)
 
 # helper functions
-from app.commons.llm import query_openai
+from app.commons.llms.gpt import query_openai
 import app.commons.db
 from app.commons.spotify_helpers import get_saved_songs
 
@@ -33,23 +33,32 @@ def submit():
     song_options, song_uri = get_saved_songs(sp) 
 
     # Make LLM API call
-    # gpt_response = query_openai(prompt, int(num_songs), song_options)
+    llm_response, backup = query_openai(prompt, int(num_songs), song_options)
     # TESTING
-    gpt_response = ast.literal_eval("""[["Passionfruit", "Drake"], ["Late in the Evening", "Paul Simon"], ["What I Got", "Sublime"]]""")
+    # llm_response = [{'song': 'The Modern Age', 'artist': 'The Strokes'}, {'song': 'We Will Rock You', 'artist': 'Queen'}, {'song': "Don't Stop Me Now", 'artist': 'Queen'}]
+    # llm_response = [{'song': 'We Will Rock You', 'artist': 'Queen'}, {'song': "Don't Stop Me Now", 'artist': 'Queen'}]
+    # backup = [{'song': 'Another One Bites the Dust', 'artist': 'Queen'}, {'song': 'Somebody to Love', 'artist': 'Queen'}, {'song': 'Under Pressure', 'artist': 'Queen'}]
 
     # Construct response
     song_list, uri_list = [], []
     song_uri_dict = {}
-    for track in gpt_response:
+    is_enough_responses = True
+    # for track in llm_response:
+    while llm_response:
+        track = llm_response[0]
         try:
-            uri_list.append(song_uri[track[0]+track[1]])
+            uri_list.append(song_uri[track["song"]+track["artist"]])
+            llm_response.pop(0)
         except:
-            # TODO bad key callback
-            print("BAD KEY: "+track[0]+track[1])
-            continue
+            llm_response.pop(0)
+            if len(backup) > 0:
+                llm_response.append(backup.pop())
+            else:
+                # TODO print message to console saying there are not enough songs that match request
+                is_enough_responses = False
         else:
-            song_list.append("'"+track[0]+"'"+ " by " + track[1])
-            song_uri_dict["'"+track[0]+"'"+ " by " + track[1]] = song_uri[track[0]+track[1]]
+            song_list.append("'"+track["song"]+"'"+ " by " + track["artist"])
+            song_uri_dict["'"+track["song"]+"'"+ " by " + track["artist"]] = song_uri[track["song"]+track["artist"]]
     song_list_stringified = "\n".join(song_list)
 
     # Set session data
@@ -58,8 +67,9 @@ def submit():
     session["playlist_title"] = playlist_title
     session["song_uri"] = song_uri_dict
     session["num_songs"] = num_songs
+    session['is_enough_responses'] = is_enough_responses
 
     # Send server response
-    api_response = {"playlist" : song_list_stringified}
+    api_response = {"playlist" : song_list_stringified, "is_enough_responses": is_enough_responses}
 
     return api_response

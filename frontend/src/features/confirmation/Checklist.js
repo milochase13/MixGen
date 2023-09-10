@@ -10,6 +10,7 @@ const Checklist = () => {
   const [checklist, setChecklist] = useState([]);
   const [checkedItems, setCheckedItems] = useState({});
   const [confirmed, setConfirmed] = useState(false);
+  const [is_enough_responses, setIs_enough_responses] = useState(true);
 
   const [rating, setRating] = useState(0);
 
@@ -19,23 +20,25 @@ const Checklist = () => {
   };
 
   const handleGoBack = (_) => {
-    axios.post('/api/rating', { rating: rating })
-      .then(response => {
-      // handle response
-      })
-      .catch(error => {
-        // Handle error 
-      });
+    if (confirmed) {
+      axios.post('/api/rating', { rating: rating })
+        .then(response => {
+          // handle response
+        })
+        .catch(error => {
+          // Handle error 
+        });
+    }
     store.dispatch(go_back());
   }
 
   useEffect(() => {
-    console.log(rating);
     fetch('/api/checklist')
       .then(response => response.json())
       .then(data => {
-        setChecklist(Object.keys(data));
-        setCheckedItems(data);
+        setChecklist(Object.keys(data["checklist"]));
+        setCheckedItems(data["checklist"]);
+        setIs_enough_responses(data["is_enough"]);
       });
   }, []);
 
@@ -64,47 +67,52 @@ const Checklist = () => {
   };
 
   return (
-    <div class = ".checklist-container">
-        {!confirmed && <div>
-            <div class="header">
-                Here is your AI generated playlist! Finalize it by choosing which songs to keep:
+    <div class=".checklist-container">
+      {!confirmed && <div>
+        <div class="header">
+          Here is your AI generated playlist! Finalize it by choosing which songs to keep:
+        </div>
+        <form class="form-confirm">
+          {checklist.map(item => (
+            <div key={item} class="inputGroup">
+              <input
+                type="checkbox"
+                checked={checkedItems[item]}
+                onChange={() => handleCheckboxChange(item)}
+                id={item}
+              />
+              <label for={item}>{item}</label>
             </div>
-            <form class="form-confirm">
-            {checklist.map(item => (
-                <div key={item} class="inputGroup">
-                <input
-                    type="checkbox"
-                    checked={checkedItems[item]}
-                    onChange={() => handleCheckboxChange(item)}
-                    id={item}
-                />
-                <label for={item}>{item}</label>
-                </div>
-            ))}
-            </form>
-            <div class="button-container">
-                <button onClick={handleGoBack} class="button-64 pair" role="button">
-                  Go Back
-                </button>
-                <button onClick={handleConfirm} class="button-63 pair" role="button">
-                    Confirm
-                </button>
-              </div>
-            </div>
+          ))}
+        </form>
+        {!is_enough_responses && 
+        <div class="not-enough-songs">
+          <p>Could not find enough songs that matched your description :( Please go back and try adjusting your prompt</p>
+        </div>
         }
-        {confirmed && <div>
-            <p class="rating-page">
-            Your playlist has been created!
-            </p>
-         <br/>
-          <StarRating initialValue={rating} onRate={handleRating} />
-         <div class="button-container">
-           <button onClick={handleGoBack} class="button-64 pair" role="button">
-              Done
-           </button>
-         </div>
-         </div>
-         }
+        <div class="button-container">
+          <button onClick={handleGoBack} class="button-64 pair" role="button">
+            Go Back
+          </button>
+          <button onClick={handleConfirm} class="button-63 pair" role="button">
+            Confirm
+          </button>
+        </div>
+      </div>
+      }
+      {confirmed && <div>
+        <p class="rating-page">
+          Your playlist has been created!
+        </p>
+        <br />
+        <StarRating initialValue={rating} onRate={handleRating} />
+        <div class="button-container">
+          <button onClick={handleGoBack} class="button-64 pair" role="button">
+            Done
+          </button>
+        </div>
+      </div>
+      }
     </div>
   );
 };

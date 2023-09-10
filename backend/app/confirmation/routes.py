@@ -6,8 +6,7 @@ import spotipy
 
 @bp.route('/api/checklist', methods=['GET'])
 def get_checklist():
-    if session["checklist"]:
-        return session["checklist"]
+    return {"checklist" : session["checklist"], "is_enough" : session["is_enough_responses"]}
 
 @bp.route('/api/update-checklist', methods=['POST'])
 def update_checklist():
@@ -51,6 +50,4 @@ def confirm_checklist():
 def record_rating():
     session["rating"] = request.json['rating']
     msg_pmt, code_pmt = add_rating(request.json['rating'], session["pmt_id"])
-    print(msg_pmt)
-    print(session["rating"])
     return {'success' : True}
