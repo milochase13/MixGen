@@ -3,6 +3,7 @@ import { submit } from './formSlice'
 import './styles/form.css';
 import { connect } from 'react-redux';
 import store from '../../app/store';
+import LoadingSpinner from './LoadingSpinner';
 
 const mapStateToProps = (state) => {
     return {
@@ -20,6 +21,7 @@ export function Form() {
   const [numSongs, setNumSongs] = useState('');
   const [title, setTitle] = useState('');
   const [inputError, setInputError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleNumSongsChange = (event) => {
     setNumSongs(event.target.value);
@@ -61,6 +63,7 @@ export function Form() {
       setInputError(null);
     }
     try {
+      setLoading(true);
       const app_response = await fetch('/api/submit', {
         method: 'POST',
         headers: {
@@ -70,6 +73,7 @@ export function Form() {
         body: JSON.stringify({ "prompt": prompt, "num_songs": numSongs, "title": title}),
       });
       if (app_response.ok) {
+        setLoading(false);
         setMode(1);
         store.dispatch(submit({
             user_prompt: prompt,
@@ -80,6 +84,7 @@ export function Form() {
         }));
         
       } else {
+        setLoading(false);
         throw new Error('Request failed with status ' + app_response.status);
       }
     } catch (error) {
@@ -89,30 +94,31 @@ export function Form() {
 
   return (
     <div class="html">
-       {/* Form */}
-      <div class="container">
-        <div class="cta-form">
-          <h2>Create a new playlist</h2> 
-          <p>Submit the form to create an AI generated playlist from your liked songs.</p>
-        </div>
-        <form class="form"  onSubmit={handleSubmit}>
-      
-          <input class="form__input" type="text" value={title} onChange={handleTitleChange} placeholder="Title" />
-          <label class="form__label" htmlFor="title">Title</label>
-          
-          <input class="form__input" type="text" value={prompt} onChange={handlePromptChange} placeholder="Prompt"/>
-          <label for="prompt" class="form__label" htmlFor="description">Description</label>
-          
-          <input class="form__input" type="number" step="1" value = {numSongs} onChange={handleNumSongsChange} placeholder="Length" /> 
-          <label for="songs" class="form__label" htmlFor="num_songs">Length</label>
-
-          {inputError && <div style={{ color: 'red' }}>{inputError}</div>}
-          <div class="button-container">
-            <button type="submit" class="button-63" role="button">Submit</button>
+      {!loading ?
+       (<div class="container">
+          <div class="cta-form">
+            <h2>Create a new playlist</h2> 
+            <p>Submit the form to create an AI generated playlist from your liked songs.</p>
           </div>
-        </form>
-      </div> 
-      
+          <form class="form"  onSubmit={handleSubmit}>
+        
+            <input class="form__input" type="text" value={title} onChange={handleTitleChange} placeholder="Title" />
+            <label class="form__label" htmlFor="title">Title</label>
+            
+            <input class="form__input" type="text" value={prompt} onChange={handlePromptChange} placeholder="Prompt"/>
+            <label for="prompt" class="form__label" htmlFor="description">Description</label>
+            
+            <input class="form__input" type="number" step="1" value = {numSongs} onChange={handleNumSongsChange} placeholder="Length" /> 
+            <label for="songs" class="form__label" htmlFor="num_songs">Length</label>
+
+            {inputError && <div style={{ color: 'red' }}>{inputError}</div>}
+            <div class="button-container">
+              <button type="submit" class="button-63" role="button">Submit</button>
+            </div>
+          </form>
+      </div>)
+    : <LoadingSpinner />
+    }
     </div>
   );
 }

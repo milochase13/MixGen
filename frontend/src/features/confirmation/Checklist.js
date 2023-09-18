@@ -87,19 +87,20 @@ const Checklist = () => {
         </form>
         {!is_enough_responses && 
         <div class="not-enough-songs">
-          <p>Could not find enough songs that matched your description :( Please go back and try adjusting your prompt</p>
+          <p>Could not find enough songs that matched your description! Please try adjusting your prompt to get more matches.</p>
         </div>
         }
         <div class="button-container">
           <button onClick={handleGoBack} class="button-64 pair" role="button">
             Go Back
           </button>
+          {checklist.length > 0 &&
           <button onClick={handleConfirm} class="button-63 pair" role="button">
             Confirm
           </button>
+          }
         </div>
-      </div>
-      }
+      </div>}
       {confirmed && <div>
         <p class="rating-page">
           Your playlist has been created!

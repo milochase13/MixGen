@@ -1,0 +1,22 @@
+.loader {
+    display: flex;
+    justify-content: center; /* Horizontal centering */
+    align-items: center; /* Vertical centering */
+    height: 100vh; /* 100% of the viewport height */
+    flex-direction: column;
+}
+
+.loaderText {
+    color: #a2b0c1;  
+}
+
+.element {
+    position: absolute; /* Elements have an absolute position */
+    top: 0; /* Position from the top edge of the container */
+    left: 0; /* Position from the left edge of the container */
+    width: 100%; /* Occupy the full width of the container */
+    height: 100%; /* Occupy the full height of the container */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }

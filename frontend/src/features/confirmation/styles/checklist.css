@@ -200,7 +200,9 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  color: red;
-  font-size: 18px;
-  padding: 0vh 0vh 5vh 0vh
+  color: rgb(255, 34, 34);
+  font-size: 22px;
+  font-weight: 500;
+  font-family: Phantomsans, sans-serif;
+  padding: 0vh 0vh 5vh 0vh;
 }

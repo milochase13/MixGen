@@ -20,6 +20,7 @@ def submit():
     # Create Spotify object from cache, fallback redirect to signin
     cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
     auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
         return redirect('/signin/')
     
@@ -35,14 +36,12 @@ def submit():
     # Make LLM API call
     llm_response, backup = query_openai(prompt, int(num_songs), song_options)
     # TESTING
-    # llm_response = [{'song': 'The Modern Age', 'artist': 'The Strokes'}, {'song': 'We Will Rock You', 'artist': 'Queen'}, {'song': "Don't Stop Me Now", 'artist': 'Queen'}]
+    #llm_response = [{'song': 'The Modern Age', 'artist': 'The Strokes'}, {'song': 'We Will Rock You', 'artist': 'Queen'}, {'song': "Don't Stop Me Now", 'artist': 'Queen'}]
     # llm_response = [{'song': 'We Will Rock You', 'artist': 'Queen'}, {'song': "Don't Stop Me Now", 'artist': 'Queen'}]
-    # backup = [{'song': 'Another One Bites the Dust', 'artist': 'Queen'}, {'song': 'Somebody to Love', 'artist': 'Queen'}, {'song': 'Under Pressure', 'artist': 'Queen'}]
+    #backup = [{'song': 'Another One Bites the Dust', 'artist': 'Queen'}, {'song': 'Somebody to Love', 'artist': 'Queen'}, {'song': 'Under Pressure', 'artist': 'Queen'}]
 
     # Construct response
-    song_list, uri_list = [], []
-    song_uri_dict = {}
-    is_enough_responses = True
+    song_list, uri_list, song_uri_dict, is_enough_responses = [], [], {}, True
     # for track in llm_response:
     while llm_response:
         track = llm_response[0]
@@ -54,7 +53,6 @@ def submit():
             if len(backup) > 0:
                 llm_response.append(backup.pop())
             else:
-                # TODO print message to console saying there are not enough songs that match request
                 is_enough_responses = False
         else:
             song_list.append("'"+track["song"]+"'"+ " by " + track["artist"])
