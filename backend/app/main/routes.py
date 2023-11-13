@@ -71,3 +71,7 @@ def submit():
     api_response = {"playlist" : song_list_stringified, "is_enough_responses": is_enough_responses}
 
     return api_response
+
+# @bp.route('/')
+# def index():
+#     return app.send_static_file('index.html')
