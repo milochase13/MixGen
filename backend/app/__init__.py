@@ -10,8 +10,12 @@ db = SQLAlchemy()
 db_prod = SQLAlchemy()
 
 def create_app():
+    config_object = Config()
     app = Flask(__name__, static_folder='../../frontend/build', static_url_path='/')
-    CORS(app)
+    CORS(app,
+        origins=[config_object.CORS_ALLOW_ORIGIN], # the domains allowed to access the server
+        supports_credentials=config_object.CORS_SUPPORTS_CREDENTIALS) # True
+    # CORS(app)
     
     app.config.from_object(Config)
     app.config['SESSION_TYPE'] = 'filesystem'

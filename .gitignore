@@ -28,5 +28,4 @@ __pycache__
 
 node_modules
 
-package
-package-lock
+build
