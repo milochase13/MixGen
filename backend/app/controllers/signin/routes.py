@@ -1,6 +1,6 @@
 import spotipy
 from flask import session, request
-from app.main import bp
+from app.controllers.submit import bp
 import os
 
 scope = ["user-library-read","playlist-modify-private"]

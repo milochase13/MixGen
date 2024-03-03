@@ -1,6 +1,6 @@
 from flask import request, session, redirect
 from flask_cors import cross_origin
-from app.main import bp
+from app.controllers.submit import bp
 import os
 import sys
 import spotipy

@@ -1,5 +1,5 @@
 from flask import request, session, redirect
-from app.confirmation import bp
+from app.controllers.confirmation import bp
 from app.commons.spotify_helpers import create_playlist
 from app.commons.db import add_prompt, add_response, add_rating
 import spotipy

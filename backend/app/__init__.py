@@ -26,10 +26,10 @@ def create_app():
 
 
     # Register blueprints, initialize extensions, etc.
-    from app.main import bp as main_bp
-    from app.confirmation import bp as confirmation_bp
-    from app.signin import bp as signin
-    app.register_blueprint(main_bp)
+    from app.controllers.submit import bp as submit_bp
+    from app.controllers.confirmation import bp as confirmation_bp
+    from app.controllers.signin import bp as signin
+    app.register_blueprint(submit_bp)
     app.register_blueprint(confirmation_bp)
     app.register_blueprint(signin)
 
