@@ -4,14 +4,12 @@ from app.main import bp
 import os
 import sys
 import spotipy
-import ast
+from app.providers.impl.getSongOptionsGPTImpl import GetSongOptionsProviderGPTImpl
 
 file_dir = os.path.dirname(__file__)
 sys.path.append(file_dir)
 
 # helper functions
-from app.commons.llms.gpt import query_openai
-import app.commons.db
 from app.commons.spotify_helpers import get_saved_songs
 
 @bp.route('/api/submit', methods=['POST']) 
@@ -20,6 +18,21 @@ def submit():
     # Create Spotify object from cache, fallback redirect to signin
     cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
     auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    system_prompt="""You are a helpful assistant. Your job is to recommend songs
+      for a music playlist given a list of song options. If you don't know a 
+      song, you can make a guess based on the title and artist, but be more 
+      cautious. You will give your response in a JSON format with the following 
+      schema: {"playlist": [{"song": String, "artist": String}]}. Do not include
+        any text in your response other than the JSON output."""
+    user_prompt_template="""I want to create a playlist that is: {}. Given the 
+      following song options (in no particular order, try to consider each song 
+      equally), create an appropriate playlist that is {} songs with your very 
+      best picks towards the beginning. Song options: """
+    get_song_options_provider = GetSongOptionsProviderGPTImpl(
+        model="gpt-3.5-turbo", system_prompt=system_prompt, 
+        user_prompt_template=user_prompt_template, 
+        openai_api_key=os.getenv("OPENAI_API_KEY"),
+        batch_size=1000)
 
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
         return redirect('/signin/')
@@ -31,18 +44,16 @@ def submit():
     prompt = response_body['prompt']
     num_songs = response_body['num_songs']
     playlist_title = response_body['title']
-    song_options, song_uri = get_saved_songs(sp) 
+    song_options, song_uri = get_saved_songs(sp)
 
     # Make LLM API call
-    llm_response, backup = query_openai(prompt, int(num_songs), song_options)
+    llm_response, backup = get_song_options_provider.get_songs(prompt, int(num_songs), song_options)
     # TESTING
-    #llm_response = [{'song': 'The Modern Age', 'artist': 'The Strokes'}, {'song': 'We Will Rock You', 'artist': 'Queen'}, {'song': "Don't Stop Me Now", 'artist': 'Queen'}]
-    # llm_response = [{'song': 'We Will Rock You', 'artist': 'Queen'}, {'song': "Don't Stop Me Now", 'artist': 'Queen'}]
+    # llm_response = [{'song': 'The Modern Age', 'artist': 'The Strokes'}, {'song': 'We Will Rock You', 'artist': 'Queen'}, {'song': "Don't Stop Me Now", 'artist': 'Queen'}]
     #backup = [{'song': 'Another One Bites the Dust', 'artist': 'Queen'}, {'song': 'Somebody to Love', 'artist': 'Queen'}, {'song': 'Under Pressure', 'artist': 'Queen'}]
 
     # Construct response
     song_list, uri_list, song_uri_dict, is_enough_responses = [], [], {}, True
-    # for track in llm_response:
     while llm_response:
         track = llm_response[0]
         try:
@@ -71,7 +82,3 @@ def submit():
     api_response = {"playlist" : song_list_stringified, "is_enough_responses": is_enough_responses}
 
     return api_response
-
-# @bp.route('/')
-# def index():
-#     return app.send_static_file('index.html')

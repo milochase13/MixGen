@@ -3,7 +3,6 @@ import time
 
 logger = logging.getLogger(__name__)
 
-
 def get_saved_songs(sp):
     song_options = []
     song_uri = {}
