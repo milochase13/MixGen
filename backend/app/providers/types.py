@@ -1,4 +1,5 @@
 from typing import TypedDict, List
+from langchain_core.pydantic_v1 import BaseModel
 
 '''
 My own random learning... Obviously typing is not enforced in python
@@ -13,3 +14,6 @@ class SongOption(TypedDict):
 
 class PlaylistOption(TypedDict):
     playlist: List[SongOption]
+
+class RagQuestion(BaseModel):
+    __root__: str
