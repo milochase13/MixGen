@@ -5,11 +5,14 @@ import os
 import sys
 import spotipy
 from app.providers.impl.getSongOptionsGPTImpl import GetSongOptionsProviderGPTImpl
+from app.providers.impl.getSongOptionsRedisRagLyricsImpl import GetSongOptionsProviderRedisRagLyricsImpl
+from app.configs import getSongOptionsProviderGPTConfig as GPTConfig, getSongOptionsRedisRagLyricsConfig as RRLConfig
+from langchain_community.embeddings import HuggingFaceEmbeddings
+import config as AppConfig
 
 file_dir = os.path.dirname(__file__)
 sys.path.append(file_dir)
 
-# helper functions
 from app.commons.spotify_helpers import get_saved_songs
 
 @bp.route('/api/submit', methods=['POST']) 
@@ -18,22 +21,8 @@ def submit():
     # Create Spotify object from cache, fallback redirect to signin
     cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
     auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
-    system_prompt="""You are a helpful assistant. Your job is to recommend songs
-      for a music playlist given a list of song options. If you don't know a 
-      song, you can make a guess based on the title and artist, but be more 
-      cautious. You will give your response in a JSON format with the following 
-      schema: {"playlist": [{"song": String, "artist": String}]}. Do not include
-        any text in your response other than the JSON output."""
-    user_prompt_template="""I want to create a playlist that is: {}. Given the 
-      following song options (in no particular order, try to consider each song 
-      equally), create an appropriate playlist that is {} songs with your very 
-      best picks towards the beginning. Song options: """
-    get_song_options_provider = GetSongOptionsProviderGPTImpl(
-        model="gpt-3.5-turbo", system_prompt=system_prompt, 
-        user_prompt_template=user_prompt_template, 
-        openai_api_key=os.getenv("OPENAI_API_KEY"),
-        batch_size=1000)
 
+    # Instantiate clients
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
         return redirect('/signin/')
     
@@ -46,8 +35,27 @@ def submit():
     playlist_title = response_body['title']
     song_options, song_uri = get_saved_songs(sp)
 
+    # Instantiate providers
+    get_song_options_batched_gpt_provider = GetSongOptionsProviderGPTImpl(
+        song_choices=song_options,
+        model=GPTConfig.MODEL, system_prompt=GPTConfig.SYSTEM_PROMPT, 
+        user_prompt_template=GPTConfig.USER_PROMPT_TEMPLATE, 
+        openai_api_key=AppConfig.OPENAI_API_KEY,
+        batch_size=GPTConfig.BATCH_SIZE,
+        max_batching_depth=GPTConfig.MAX_BATCHING_DEPTH,
+        )
+    
+    _get_song_options_rrl_provider = GetSongOptionsProviderRedisRagLyricsImpl(
+        embedder=HuggingFaceEmbeddings(model_name=AppConfig.EMBED_MODEL),
+        index_name=AppConfig.INDEX_NAME,
+        index_schema=AppConfig.INDEX_SCHEMA,
+        redis_url=AppConfig.REDIS_URL,
+        context_template=RRLConfig.CONTEXT_TEMPLATE,
+        response_schema=RRLConfig.RESPONSE_SCHEMA,
+    )
+
     # Make LLM API call
-    llm_response, backup = get_song_options_provider.get_songs(prompt, int(num_songs), song_options)
+    llm_response, backup = get_song_options_batched_gpt_provider.get_songs(prompt, int(num_songs))
     # TESTING
     # llm_response = [{'song': 'The Modern Age', 'artist': 'The Strokes'}, {'song': 'We Will Rock You', 'artist': 'Queen'}, {'song': "Don't Stop Me Now", 'artist': 'Queen'}]
     #backup = [{'song': 'Another One Bites the Dust', 'artist': 'Queen'}, {'song': 'Somebody to Love', 'artist': 'Queen'}, {'song': 'Under Pressure', 'artist': 'Queen'}]

@@ -34,36 +34,44 @@ from langchain_core.runnables import RunnableParallel, RunnablePassthrough
 
 class GetSongOptionsProviderRedisRagLyricsImpl(GetSongOptionsProvider):
 
-    def __init__(self, user_prompt, embedder, index_name, index_schema, redis_url, template):
-        self.user_prompt = user_prompt
+    def __init__(self, embedder, index_name, index_schema, redis_url, context_template, response_schema):
         self.embedder = embedder
         self.index_name = index_name
         self.index_schema = index_schema
         self.redis_url = redis_url
-        self.template = template
+        self.context_template = context_template
+        self.response_schema = response_schema
         
-    def connect_to_vector_store(self):
+    def connect_to_vector_store(self, num_songs):
         vectorstore = Redis.from_existing_index(
             embedding=self.embedder, index_name=self.index_name, schema=self.index_schema, redis_url=self.redis_url
         )
-        retriever = vectorstore.as_retriever(search_type="mmr")
+        retriever = vectorstore.as_retriever(search_kwargs={"k": num_songs}, search_type="mmr")
         return retriever
     
+    def interpolate_context_template(self, num_songs):
+        self.context_template = self.context_template.format(num_songs=num_songs)
+    
+    def concat_schema_info(self, first_half):
+        return first_half + self.response_schema
+    
     def create_rag_chain(self, retriever):
-        prompt = ChatPromptTemplate.from_template(self.template)
+        prompt = ChatPromptTemplate.from_template(self.context_template)
 
         # RAG Chain
         model = ChatOpenAI(model_name="gpt-3.5-turbo-16k")
         chain = (
             RunnableParallel({"context": retriever, "question": RunnablePassthrough()})
             | prompt
+            | self.concat_schema_info()
             | model
             | StrOutputParser()
         ).with_types(input_type=RagQuestion)
         return chain
     
-    def get_songs(self):
-        vector_store = self.connect_to_vector_store()
+    def get_songs(self, user_prompt: str, num_songs: int):
+        self.interpolate_context_template(num_songs)
+        vector_store = self.connect_to_vector_store(num_songs*2)
         rag_chain = self.create_rag_chain(vector_store)
-        response = rag_chain(self.user_prompt) # I think that's how this works?
+        response = rag_chain.invoke(user_prompt, num_songs) 
         return response, []

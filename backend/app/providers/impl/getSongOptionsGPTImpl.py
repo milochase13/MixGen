@@ -64,9 +64,10 @@ TODO:
 
 class GetSongOptionsProviderGPTImpl(GetSongOptionsProvider):
 
-    def __init__(self, model, system_prompt, user_prompt_template, 
+    def __init__(self, song_choices, model, system_prompt, user_prompt_template, 
                  openai_api_key, context_size=4097, batch_size=4097, 
                  max_batching_depth=3):
+        self.song_choices = song_choices
         self.model = model 
         self.encoding = tiktoken.encoding_for_model(self.model)
         self.system_prompt = system_prompt
@@ -130,10 +131,10 @@ class GetSongOptionsProviderGPTImpl(GetSongOptionsProvider):
         batches.append(running_batch)
         return batches
     
-    def get_songs(self, prompt: str, num_songs: int, song_options: List[str]) -> List[SongOption]:
+    def get_songs(self, prompt: str, num_songs: int) -> List[SongOption]:
         user_prompt = self.user_prompt_template.format(prompt, str(num_songs*2))
         openai.api_key = self.openai_api_key
-        batches = self.batch_songs(song_options, user_prompt, num_songs*2)
+        batches = self.batch_songs(self.song_choices, user_prompt, num_songs*2)
         final_batch = self.reduce_batches(batches, user_prompt, num_songs*2)
         final_songs = self.query_gpt(final_batch, user_prompt)
         if len(final_songs) > num_songs:
