@@ -41,7 +41,7 @@ def submit():
         model=GPTConfig.MODEL, system_prompt=GPTConfig.SYSTEM_PROMPT, 
         user_prompt_template=GPTConfig.USER_PROMPT_TEMPLATE, 
         openai_api_key=AppConfig.OPENAI_API_KEY,
-        batch_size=GPTConfig.BATCH_SIZE,
+        batch_size=GPTConfig.BATCH_SIZE, 
         max_batching_depth=GPTConfig.MAX_BATCHING_DEPTH,
         )
     
