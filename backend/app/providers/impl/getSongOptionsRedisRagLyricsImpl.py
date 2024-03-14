@@ -30,7 +30,8 @@ from langchain_community.chat_models import ChatOpenAI
 from langchain_community.vectorstores import Redis
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import RunnableParallel, RunnablePassthrough
+from langchain_core.runnables import RunnableParallel, RunnablePassthrough, RunnableLambda
+import json
 
 class GetSongOptionsProviderRedisRagLyricsImpl(GetSongOptionsProvider):
 
@@ -53,17 +54,23 @@ class GetSongOptionsProviderRedisRagLyricsImpl(GetSongOptionsProvider):
         self.context_template = self.context_template.format(num_songs=num_songs)
     
     def concat_schema_info(self, first_half):
-        return first_half + self.response_schema
+        return first_half.append(self.response_schema)
+    
+    def handle_llm_response(self, response):
+        try:
+            return json.loads(response)["playlist"], []
+        except:
+            # TODO handle bad format
+            return []
     
     def create_rag_chain(self, retriever):
-        prompt = ChatPromptTemplate.from_template(self.context_template)
+        prompt = ChatPromptTemplate.from_template(self.context_template+self.response_schema)
 
         # RAG Chain
         model = ChatOpenAI(model_name="gpt-3.5-turbo-16k")
         chain = (
-            RunnableParallel({"context": retriever, "question": RunnablePassthrough()})
+            RunnableParallel({"context": retriever, "user_input": RunnablePassthrough()})
             | prompt
-            | self.concat_schema_info()
             | model
             | StrOutputParser()
         ).with_types(input_type=RagQuestion)
@@ -73,5 +80,5 @@ class GetSongOptionsProviderRedisRagLyricsImpl(GetSongOptionsProvider):
         self.interpolate_context_template(num_songs)
         vector_store = self.connect_to_vector_store(num_songs*2)
         rag_chain = self.create_rag_chain(vector_store)
-        response = rag_chain.invoke(user_prompt, num_songs) 
-        return response, []
+        response = rag_chain.invoke(user_prompt) 
+        return self.handle_llm_response(response)

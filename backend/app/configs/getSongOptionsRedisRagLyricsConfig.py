@@ -7,9 +7,9 @@ CONTEXT_TEMPLATE="""I want you to create a music playlist that is {num_songs} \
 
 RESPONSE_SCHEMA=""" You will give your response in a JSON format with the \
     following schema: 
-{
-    "playlist": [{"song": String, "artist": String}]
-}
+{{
+    "playlist": [{{"song": String, "artist": String}}]
+}}
 
 Do not include any text in your response other than the JSON output.
 """

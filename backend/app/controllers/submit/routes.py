@@ -41,11 +41,11 @@ def submit():
         model=GPTConfig.MODEL, system_prompt=GPTConfig.SYSTEM_PROMPT, 
         user_prompt_template=GPTConfig.USER_PROMPT_TEMPLATE, 
         openai_api_key=AppConfig.OPENAI_API_KEY,
-        batch_size=GPTConfig.BATCH_SIZE, 
+        batch_size=GPTConfig.BATCH_SIZE,
         max_batching_depth=GPTConfig.MAX_BATCHING_DEPTH,
         )
     
-    _get_song_options_rrl_provider = GetSongOptionsProviderRedisRagLyricsImpl(
+    get_song_options_rrl_provider = GetSongOptionsProviderRedisRagLyricsImpl(
         embedder=HuggingFaceEmbeddings(model_name=AppConfig.EMBED_MODEL),
         index_name=AppConfig.INDEX_NAME,
         index_schema=AppConfig.INDEX_SCHEMA,
@@ -55,7 +55,8 @@ def submit():
     )
 
     # Make LLM API call
-    llm_response, backup = get_song_options_batched_gpt_provider.get_songs(prompt, int(num_songs))
+    llm_response, backup = get_song_options_rrl_provider.get_songs(prompt, int(num_songs))
+    
     # TESTING
     # llm_response = [{'song': 'The Modern Age', 'artist': 'The Strokes'}, {'song': 'We Will Rock You', 'artist': 'Queen'}, {'song': "Don't Stop Me Now", 'artist': 'Queen'}]
     #backup = [{'song': 'Another One Bites the Dust', 'artist': 'Queen'}, {'song': 'Somebody to Love', 'artist': 'Queen'}, {'song': 'Under Pressure', 'artist': 'Queen'}]

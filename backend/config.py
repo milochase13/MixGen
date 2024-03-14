@@ -7,7 +7,7 @@ db_name = 'mix_gen'
 EMBED_MODEL=os.getenv("EMBED_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
 REDIS_URL=os.environ["REDIS_URL"]
 INDEX_NAME=os.getenv("INDEX_NAME", "rag-redis")
-INDEX_SCHEMA="/app/configs/redisRagLyricsSchema.yaml"
+INDEX_SCHEMA="/Users/milochase/projects/MixGen/backend/app/configs/redisRagLyricsSchema.yaml"
 OPENAI_API_KEY=os.getenv("OPENAI_API_KEY")
 
 class Config:

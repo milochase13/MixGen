@@ -18,8 +18,6 @@ def combine_response_options(get_song_options_batches: PlaylistOption) ->  List[
             response_options_json = json.loads(get_song_options)
             response_batches_combined.extend(response_options_json["playlist"])
         except:
-            print("BAD RESPONSE FORMAT")
-            print(response_options_json)
             # Will propogate empty result through workflow until eventually being handled later if there is not enough data
             continue
     return response_batches_combined
