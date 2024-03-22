@@ -65,6 +65,7 @@ class GetSongOptionsProviderRedisRagLyricsImpl(GetSongOptionsProvider):
     
     def create_rag_chain(self, retriever):
         prompt = ChatPromptTemplate.from_template(self.context_template+self.response_schema)
+        print(prompt)
 
         # RAG Chain
         model = ChatOpenAI(model_name="gpt-3.5-turbo-16k")

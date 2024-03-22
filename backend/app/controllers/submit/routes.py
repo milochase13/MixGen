@@ -56,6 +56,8 @@ def submit():
 
     # Make LLM API call
     llm_response, backup = get_song_options_rrl_provider.get_songs(prompt, int(num_songs))
+
+    print(llm_response)
     
     # TESTING
     # llm_response = [{'song': 'The Modern Age', 'artist': 'The Strokes'}, {'song': 'We Will Rock You', 'artist': 'Queen'}, {'song': "Don't Stop Me Now", 'artist': 'Queen'}]
