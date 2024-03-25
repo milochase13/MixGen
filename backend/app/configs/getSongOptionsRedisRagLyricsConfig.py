@@ -1,7 +1,7 @@
 CONTEXT_TEMPLATE="""I want you to create a music playlist that is {num_songs} \
 songs long and most accurately reflects the following prompt: {{user_input}}. \
-Only use the following song options and their corresponding lyrics and composers \
-to create this playlist: {{context}}
+only use the following song optins and their corresponding lyrics and composers \
+to create this playlist and DO NOT USE ANY OTHER SONGS: {{context}}
 
 
 """

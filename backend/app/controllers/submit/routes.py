@@ -6,6 +6,8 @@ import sys
 import spotipy
 from app.providers.impl.getSongOptionsGPTImpl import GetSongOptionsProviderGPTImpl
 from app.providers.impl.getSongOptionsRedisRagLyricsImpl import GetSongOptionsProviderRedisRagLyricsImpl
+from app.providers.impl.SongDetailsProviderGeniusImpl import SongDetailsProviderGeniusImpl
+from app.providers.impl.VDBIngestionProviderRedisImpl import VDBIngestionProviderRedisImpl
 from app.configs import getSongOptionsProviderGPTConfig as GPTConfig, getSongOptionsRedisRagLyricsConfig as RRLConfig
 from langchain_community.embeddings import HuggingFaceEmbeddings
 import config as AppConfig
@@ -54,11 +56,32 @@ def submit():
         response_schema=RRLConfig.RESPONSE_SCHEMA,
     )
 
+    geniusSongDetails = SongDetailsProviderGeniusImpl('TODO add')
+    testSongOptions = [{"song": "Happy", "artist": "Pharrell Williams"}, {"song": "Friend is a four letter word", "artist": "Cake"}, {"song": "PRIDE", "artist": "Kendrick Lamar"}]
+    lyrics = geniusSongDetails.get_all_lyrics(testSongOptions)
+    print(lyrics)
+
+    vdbIngestion = VDBIngestionProviderRedisImpl(
+        embedder=HuggingFaceEmbeddings(model_name=AppConfig.EMBED_MODEL),
+        index_name=AppConfig.INDEX_NAME,
+        index_schema=AppConfig.INDEX_SCHEMA,
+        redis_url=AppConfig.REDIS_URL,
+        )
+    
+    # lyrics = {
+    #     'Happy by Pharrell Williams': 'happy',
+    #     'Friend is a four letter word by Cake': 'sad',
+    #     'PRIDE by Kendrick Lamar': 'emotional',
+    # }
+
+    vdbIngestion.ingest_lyrics(list(lyrics.values()), [{'titles': key} for key in list(lyrics.keys())])
+    
+
     # Make LLM API call
     llm_response, backup = get_song_options_rrl_provider.get_songs(prompt, int(num_songs))
 
-    print(llm_response)
-    
+    print("response: ", llm_response)
+
     # TESTING
     # llm_response = [{'song': 'The Modern Age', 'artist': 'The Strokes'}, {'song': 'We Will Rock You', 'artist': 'Queen'}, {'song': "Don't Stop Me Now", 'artist': 'Queen'}]
     #backup = [{'song': 'Another One Bites the Dust', 'artist': 'Queen'}, {'song': 'Somebody to Love', 'artist': 'Queen'}, {'song': 'Under Pressure', 'artist': 'Queen'}]

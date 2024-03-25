@@ -62,6 +62,10 @@ class GetSongOptionsProviderRedisRagLyricsImpl(GetSongOptionsProvider):
         except:
             # TODO handle bad format
             return []
+        
+    def print_debugger(self, input):
+        print("This is the final prompt: ", input)
+        return input
     
     def create_rag_chain(self, retriever):
         prompt = ChatPromptTemplate.from_template(self.context_template+self.response_schema)
@@ -72,6 +76,7 @@ class GetSongOptionsProviderRedisRagLyricsImpl(GetSongOptionsProvider):
         chain = (
             RunnableParallel({"context": retriever, "user_input": RunnablePassthrough()})
             | prompt
+            | RunnableLambda(self.print_debugger)
             | model
             | StrOutputParser()
         ).with_types(input_type=RagQuestion)
